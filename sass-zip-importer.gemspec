@@ -8,9 +8,12 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Chris Eppstein"]
   s.email       = ["chris@eppsteins.net"]
-  s.homepage    = "http://chriseppstein.github.com/"
-  s.summary     = %q{Allows importing of css files using Sass @import directives.}
-  s.description = %q{Allows importing of css files using Sass @import directives.}
+  s.homepage    = "http://github.com/linkedin/sass-zip-importer"
+  s.summary     = "Allows sass, scss, and css files within zip files to be found " +
+                  "using Sass @import directives."
+  s.description = "Allows sass, scss, and css files within zip files to be found " +
+                  "using Sass @import directives."
+  s.license     = 'Apache 2.0'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- test/*`.split("\n")
@@ -18,5 +21,4 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'sass', '>= 3.1'
   s.add_runtime_dependency 'rubyzip', '~> 0.9.9'
-
 end

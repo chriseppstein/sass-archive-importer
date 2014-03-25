@@ -20,7 +20,7 @@ class Sass::Engine
   def initialize(template, options={})
     if options[:load_paths]
       options[:load_paths].map! do |load_path|
-        next load_path unless load_path.is_a?(::String) && load_path =~ /\.zip$/
+        next load_path unless load_path.is_a?(::String) && load_path =~ /\.(zip|jar)$/
         Sass::ZipImporter::Importer.new(load_path)
       end
     end

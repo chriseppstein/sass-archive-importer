@@ -24,26 +24,13 @@ require 'sass'
 require 'sass-zip-importer'
 
 class SassZipImporterTest < Test::Unit::TestCase
-  ZIP_FIXTURE_DIR = File.expand_path(File.join(File.dirname(__FILE__), "fixtures", "zipped_files"))
+  # These fixtures are created and kept up to date by the rakefile
+  # Run `rake test` to re-create them
   ZIP_FIXTURE = File.expand_path(File.join(File.dirname(__FILE__), "fixtures", "zipped_files.zip"))
+  JAR_FIXTURE = File.expand_path(File.join(File.dirname(__FILE__), "fixtures", "jarred_files.jar"))
 
-  def setup
-    unless $zip_created
-      $zip_created = true
-      zip_path = Pathname.new(ZIP_FIXTURE_DIR)
-      FileUtils.rm_f(ZIP_FIXTURE)
-      Zip::ZipOutputStream.open(ZIP_FIXTURE) do |io|
-        Dir.glob("#{ZIP_FIXTURE_DIR}/**/*.*").each do |file|
-          filename = Pathname.new(file).relative_path_from(zip_path)
-          io.put_next_entry(filename.to_s)
-          io.write File.read(file)
-        end
-      end
-    end
-  end
-
-  def test_can_import_css_files_files
-    css = render_file("imports_from_zip.scss")
+  def test_can_import_files_from_zip
+    css = render_file_from_zip("imports_from_zip.scss")
     assert_match(/\.css-partial/, css)
     assert_match(/\.css-file/, css)
     assert_match(/\.sass-partial/, css)
@@ -54,8 +41,21 @@ class SassZipImporterTest < Test::Unit::TestCase
     assert_match(/\.deeply-nested/, css)
   end
 
+  def test_can_import_files_from_jar
+    css = render_file_from_jar("imports_from_zip.scss")
+    assert_match(/\.css-partial/, css)
+    assert_match(/\.css-file/, css)
+    assert_match(/\.sass-partial/, css)
+    assert_match(/\.sass-file/, css)
+    assert_match(/\.scss-partial/, css)
+    assert_match(/\.scss-file/, css)
+    assert_match(/\.nested-class/, css)
+    assert_match(/\.deeply-nested/, css)
+  end
+
+
 private
-  def render_file(filename)
+  def render_file(filename, fixture)
     fixtures_dir = File.expand_path("fixtures", File.dirname(__FILE__))
     full_filename = File.expand_path(filename, fixtures_dir)
     syntax = File.extname(full_filename)[1..-1].to_sym
@@ -64,7 +64,15 @@ private
                               :filename => full_filename,
                               :cache => false,
                               :read_cache => false,
-                              :load_paths => [ZIP_FIXTURE])
+                              :load_paths => [fixture])
     engine.render
+  end
+
+  def render_file_from_zip(filename)
+    render_file(filename, ZIP_FIXTURE)
+  end
+
+  def render_file_from_jar(filename)
+    render_file(filename, JAR_FIXTURE)
   end
 end

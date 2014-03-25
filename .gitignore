@@ -1,1 +1,3 @@
 *.gem
+test/fixtures/jarred_files.jar
+test/fixtures/zipped_files.zip

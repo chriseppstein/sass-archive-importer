@@ -12,8 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Sass
-  module ZipImporter
-    VERSION = "1.0.0.beta.1"
-  end
-end
+require 'sass/archive_importer'

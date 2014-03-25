@@ -13,9 +13,7 @@
 # limitations under the License.
 
 module Sass
-  module ZipImporter
+  module ArchiveImporter
+    VERSION = "1.0.0.beta.1"
   end
 end
-
-require 'sass/zip_importer/importer';
-require 'sass/zip_importer/monkey_patches';

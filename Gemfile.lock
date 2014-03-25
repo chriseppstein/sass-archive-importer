@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sass-zip-importer (1.0.0.beta.0)
+    sass-archive-importer (1.0.0.beta.1)
       rubyzip (~> 0.9.9)
       sass (>= 3.1)
 
@@ -10,11 +10,11 @@ GEM
   specs:
     rake (10.1.0)
     rubyzip (0.9.9)
-    sass (3.2.9)
+    sass (3.3.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   rake
-  sass-zip-importer!
+  sass-archive-importer!

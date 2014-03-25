@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-class Sass::ZipImporter::Importer < Sass::Importers::Base
+class Sass::ArchiveImporter::Importer < Sass::Importers::Base
 
-  attr_reader :zip_file
+  attr_reader :archive_file
   attr_reader :sub_folder
   
   def extensions
@@ -25,21 +25,21 @@ class Sass::ZipImporter::Importer < Sass::Importers::Base
     }
   end
 
-  def initialize(zip_file, sub_folder = nil)
+  def initialize(archive_file, sub_folder = nil)
     require 'zip/zip'
     require 'pathname'
-    @zip_file = File.expand_path(zip_file)
+    @archive_file = File.expand_path(archive_file)
     @sub_folder = sub_folder
   end
 
   # Enable watching of css files in Sass 3.3+
   def watched_directories
-    [File.dirname(zip_file)]
+    [File.dirname(archive_file)]
   end
 
   # Enable watching of css files in Sass 3.3+
   def watched_file?(file)
-    zip_file == file
+    archive_file == file
   end
 
   def find_relative(name, base, options)
@@ -76,17 +76,17 @@ class Sass::ZipImporter::Importer < Sass::Importers::Base
   end
 
   def to_s
-    zip_file
+    archive_file
   end
 
   def eql?(other)
-    other.class == self.class && other.zip_file == self.zip_file
+    other.class == self.class && other.archive_file == self.archive_file
   end
 
   protected
 
   def full_filename(entry)
-    "#{zip_file}!#{entry.name}"
+    "#{archive_file}!#{entry.name}"
   end
 
   def entry_for(name, base = nil)
@@ -132,7 +132,7 @@ class Sass::ZipImporter::Importer < Sass::Importers::Base
   end
 
   def open_zip_file!
-    z = Zip::ZipFile.open(zip_file)
+    z = Zip::ZipFile.open(archive_file)
     at_exit { z.close }
     z
   end

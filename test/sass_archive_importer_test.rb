@@ -21,9 +21,9 @@ require 'zip/zip'
 require 'pathname'
 require 'fileutils'
 require 'sass'
-require 'sass-zip-importer'
+require 'sass-archive-importer'
 
-class SassZipImporterTest < Test::Unit::TestCase
+class SassArchiveImporterTest < Test::Unit::TestCase
   # These fixtures are created and kept up to date by the rakefile
   # Run `rake test` to re-create them
   ZIP_FIXTURE = File.expand_path(File.join(File.dirname(__FILE__), "fixtures", "zipped_files.zip"))

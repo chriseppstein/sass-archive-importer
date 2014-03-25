@@ -15,6 +15,7 @@
 class Sass::ZipImporter::Importer < Sass::Importers::Base
 
   attr_reader :zip_file
+  attr_reader :sub_folder
   
   def extensions
     {
@@ -24,10 +25,11 @@ class Sass::ZipImporter::Importer < Sass::Importers::Base
     }
   end
 
-  def initialize(zip_file)
+  def initialize(zip_file, sub_folder = nil)
     require 'zip/zip'
     require 'pathname'
     @zip_file = File.expand_path(zip_file)
+    @sub_folder = sub_folder
   end
 
   # Enable watching of css files in Sass 3.3+
@@ -89,6 +91,7 @@ class Sass::ZipImporter::Importer < Sass::Importers::Base
 
   def entry_for(name, base = nil)
     possible_names(name, base).each do |n|
+      n = "#{sub_folder}/#{n}" if sub_folder
       if entry = zip.find_entry(n)
         return entry
       end

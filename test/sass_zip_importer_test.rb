@@ -53,6 +53,27 @@ class SassZipImporterTest < Test::Unit::TestCase
     assert_match(/\.deeply-nested/, css)
   end
 
+  def test_can_import_files_from_jar_subfolder
+    results = render_file("imports_from_zip_subfolder.scss", "#{JAR_FIXTURE}!nested")
+    assert_equal <<CSS, results
+.deeply-nested {
+  deeply: nested; }
+
+.nested-class {
+  nested: yep; }
+CSS
+  end
+
+  def test_can_import_files_from_zip_subfolder
+    results = render_file("imports_from_zip_subfolder.scss", "#{ZIP_FIXTURE}!nested")
+    assert_equal <<CSS, results
+.deeply-nested {
+  deeply: nested; }
+
+.nested-class {
+  nested: yep; }
+CSS
+  end
 
 private
   def render_file(filename, fixture)

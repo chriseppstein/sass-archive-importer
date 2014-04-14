@@ -2,3 +2,5 @@
 test/fixtures/jarred_files.jar
 test/fixtures/zipped_files.zip
 .bundle
+test/fixtures/class_loader_importer_test.jar
+test/fixtures/tmpjava

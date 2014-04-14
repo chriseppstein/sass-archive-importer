@@ -24,10 +24,11 @@ require 'sass'
 require 'sass-archive-importer'
 
 class SassArchiveImporterTest < Test::Unit::TestCase
+  FIXTURES_DIR = File.expand_path(File.join(File.dirname(__FILE__), "fixtures"))
   # These fixtures are created and kept up to date by the rakefile
   # Run `rake test` to re-create them
-  ZIP_FIXTURE = File.expand_path(File.join(File.dirname(__FILE__), "fixtures", "zipped_files.zip"))
-  JAR_FIXTURE = File.expand_path(File.join(File.dirname(__FILE__), "fixtures", "jarred_files.jar"))
+  ZIP_FIXTURE = File.join(FIXTURES_DIR, "zipped_files.zip")
+  JAR_FIXTURE = File.join(FIXTURES_DIR, "jarred_files.jar")
 
   def test_can_import_files_from_zip
     css = render_file_from_zip("imports_from_zip.scss")

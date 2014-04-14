@@ -63,7 +63,7 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   def find_relative(name, base, options)
-    base = base.split("<ClassLoaderImporter>", 2).last
+    base = base.split("<ClassLoaderImporter>#{'/' if sub_folder}#{sub_folder}", 2).last
     if entry = entry_for(name, base)
       engine(entry, options)
     end

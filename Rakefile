@@ -23,14 +23,54 @@ task :test => [:java_test, :mri_test]
 directory "test/fixtures/tmpjava"
 directory "test/fixtures/tmpjava/org/sass/archive_importer"
 
-file "test/fixtures/tmpjava/specifications/sass-3.2.19.gemspec" => "test/fixtures/tmpjava" do
-  cwd = Dir.getwd
-  Dir.chdir ".." do
-    # this is done withing a chdir because the Gemfile in this folder was causing issues
-    execute_or_fail("gem install sass-archive-importer/test/fixtures/sass-3.2.19.gem -i #{cwd}/test/fixtures/tmpjava  --no-rdoc --no-ri",
-                    "Sass 3.2 Install")
+class GemPackage < Struct.new(:name, :version, :location, :installable)
+  def gemspec_path
+    "test/fixtures/tmpjava/specifications/#{name}-#{version}.gemspec"
+  end
+
+  def gem_path
+    "#{location}/#{name}-#{version}.gem"
   end
 end
+
+
+gems_to_install = {
+  :fssm => GemPackage.new("fssm", "0.2.10", "test/fixtures", true),
+  :chunky_png => GemPackage.new("chunky_png", "1.3.0", "test/fixtures", true),
+  :compass => GemPackage.new("compass", "0.12.5", "test/fixtures", true),
+  :sass => GemPackage.new("sass", "3.2.19", "test/fixtures", true),
+  :rubyzip => GemPackage.new("rubyzip", "0.9.9", "test/fixtures", true),
+  :"sass-archive-importer" => GemPackage.new("sass-archive-importer", SassArchiveImporter::VERSION, "pkg", false),
+}
+
+gems_to_install.values.each do |gem_definition|
+  directory File.dirname(gem_definition.gemspec_path)
+  directory File.dirname(gem_definition.gem_path)
+  if gem_definition.installable
+    file gem_definition.gem_path => File.dirname(gem_definition.gem_path) do
+      Dir.chdir File.dirname(gem_definition.gem_path) do
+        execute_or_fail("gem fetch #{gem_definition.name} --version #{gem_definition.version}",
+                        "Download #{gem_definition.name} version #{gem_definition.version}")
+      end
+    end
+  end
+  file gem_definition.gemspec_path => [
+         gem_definition.gem_path,
+         File.dirname(gem_definition.gemspec_path)
+       ] do
+    cwd = Dir.getwd
+    Dir.chdir ".." do
+      # this is done withing a chdir because the Gemfile in this folder was causing issues
+      execute_or_fail("gem install sass-archive-importer/#{gem_definition.gem_path} -i #{cwd}/test/fixtures/tmpjava  --no-rdoc --no-ri",
+                      "Gem install of #{gem_definition.name}")
+    end
+  end
+end
+
+file "pkg/sass-archive-importer-#{SassArchiveImporter::VERSION}.gem" do
+  Rake::Task["build"].invoke
+end
+
 
 file "test/fixtures/tmpjava/org/sass/archive_importer/ClassLoaderImporter.rb" => 
        %w(test/fixtures/tmpjava/org/sass/archive_importer
@@ -60,8 +100,8 @@ end
 
 desc "Build the java test jar"
 file "test/fixtures/class_loader_importer_test.jar" => 
-     %w(test/fixtures/tmpjava/org/sass/archive_importer/ClassLoaderImporter.rb
-        test/fixtures/tmpjava/specifications/sass-3.2.19.gemspec) +
+     %W(test/fixtures/tmpjava/org/sass/archive_importer/ClassLoaderImporter.rb) +
+       gems_to_install.values.map{|g| g.gemspec_path} +
       FileList["test/fixtures/zipped_files/**/*"] +
       FileList["test/class_loader_importer_test.java"] +
      [:copy_sass_artifacts] do
@@ -70,13 +110,15 @@ file "test/fixtures/class_loader_importer_test.jar" =>
                    "Java compilation")
    execute_or_fail("jar -cf test/fixtures/class_loader_importer_test.jar -C test/fixtures/tmpjava .",
                    "Jar creation")
- end
+end
 
- desc "Run java tests"
- task :java_test => "test/fixtures/class_loader_importer_test.jar" do
-   execute_or_fail("java -cp test/fixtures/jruby-complete-1.6.5.jar:test/fixtures/class_loader_importer_test.jar ClassLoaderImporterTest",
-                   "Java test")
- end
+
+desc "Run java tests"
+task :java_test => %W(test/fixtures/class_loader_importer_test.jar
+                      pkg/sass-archive-importer-#{SassArchiveImporter::VERSION}.gem) do
+  execute_or_fail("java -cp test/fixtures/jruby-complete-1.6.5.jar:test/fixtures/class_loader_importer_test.jar ClassLoaderImporterTest",
+                  "Java test")
+end
 
 Rake::TestTask.new(:mri_test) do |t|
   t.libs << 'lib'

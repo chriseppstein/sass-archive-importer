@@ -1,21 +1,28 @@
 PATH
   remote: .
   specs:
-    sass-archive-importer (1.0.0.beta.2)
+    sass-archive-importer (1.0.0.beta.3)
       rubyzip (~> 0.9.9)
       sass (>= 3.1, < 3.4)
 
 GEM
   remote: http://rubygems.org/
   specs:
+    chunky_png (1.3.0)
+    compass (0.12.5)
+      chunky_png (~> 1.2)
+      fssm (>= 0.2.7)
+      sass (~> 3.2.19)
+    fssm (0.2.10)
     rake (10.2.2)
     rubyzip (0.9.9)
-    sass (3.3.4)
+    sass (3.2.19)
 
 PLATFORMS
   java
   ruby
 
 DEPENDENCIES
+  compass (~> 0.12.5)
   rake
   sass-archive-importer!

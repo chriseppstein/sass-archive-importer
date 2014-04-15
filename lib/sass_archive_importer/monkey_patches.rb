@@ -29,3 +29,29 @@ class Sass::Engine
   end
 end
 
+begin
+  require 'compass'
+  module Compass
+    module Configuration
+      # The adapters module provides methods that make configuration data from a compass project
+      # adapt to various consumers of configuration data
+      module Adapters
+        alias sass_load_paths_without_archive_importer sass_load_paths
+        def sass_load_paths
+          sass_load_paths_without_archive_importer.map! do |importer|
+            if importer.respond_to?(:root) && importer.root =~ /^(?:file:)?(.*\.jar)!\/(.*)$/
+              if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
+                require 'org/sass/archive_importer/ClassLoaderImporter'
+                ClassLoaderImporter.new($2)
+              else
+                SassArchiveImporter::Importer.new($1, $2)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+rescue LoadError
+  # Compass isn't present
+end

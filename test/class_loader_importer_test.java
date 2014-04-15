@@ -2,10 +2,6 @@
 import org.jruby.Ruby;
 
 class ClassLoaderImporterTest {
-  //public void testJavaInstantiation() {
-    //ClassLoaderImporter importer = new ClassLoaderImporter(null);
-  //}
-
   public void testClassLoaderImporter() {
     final Ruby runtime = Ruby.newInstance();
     String script =
@@ -155,12 +151,45 @@ class ClassLoaderImporterTest {
     runtime.evalScriptlet(script);
   }
 
+  public void testClassLoaderImporterWithCompass() {
+    final Ruby runtime = Ruby.newInstance();
+    String script =
+      "# The next three lines make sure no system gems are loaded.\n" +
+      "$:.reject!{|f| !f.start_with?('file:') }\n" +
+      "ENV['GEM_HOME'] = nil\n" +
+      "ENV['GEM_PATH'] = nil\n" +
+      "require 'rubygems'\n" +
+      "require 'compass'\n" +
+      "require 'sass_archive_importer'\n" +
+      "sass_file_contents = %Q{\n" +
+      "@import \"compass\";\n" +
+      ".test { @include border-radius(5px) };\n" +
+      "}\n" +
+      "engine = Sass::Engine.new(sass_file_contents,\n" +
+      "                          :syntax => :scss,\n" +
+      "                          :filename => 'class_loader_compass_test.java',\n" +
+      "                          :cache => false,\n" +
+      "                          :read_cache => false,\n" +
+      "                          :load_paths => Compass.configuration.sass_load_paths)\n" +
+      "result = engine.render\n" +
+      "fail %Q{Unexpected output: #{result}} unless result == <<CSS\n" +
+      ".test {\n" +
+      "  -webkit-border-radius: 5px;\n" +
+      "  -moz-border-radius: 5px;\n" +
+      "  -ms-border-radius: 5px;\n" +
+      "  -o-border-radius: 5px;\n" +
+      "  border-radius: 5px; }\n" +
+      "CSS\n"+
+      "\n";
+    runtime.evalScriptlet(script);
+  }
+
   public static void main(String [] args) {
     ClassLoaderImporterTest test = new ClassLoaderImporterTest();
-    //test.testJavaInstantiation();
     test.testClassLoaderImporter();
     test.testClassLoaderImporterNestedContext();
     test.testClassLoaderImporterMissingImport();
+    test.testClassLoaderImporterWithCompass();
     System.out.println("ALL Java Tests Passed");
   }
 }

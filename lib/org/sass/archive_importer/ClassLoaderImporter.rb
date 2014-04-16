@@ -93,7 +93,7 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   def key(name, options)
-    name.split("!", 2)
+    name.split("/", 2)
   end
 
   java_signature 'boolean isEql(IRubyObject)'

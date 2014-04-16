@@ -16,8 +16,8 @@ Gem::Specification.new do |s|
                   "JRuby from the java class loader."
   s.license     = 'Apache 2.0'
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- test/*`.split("\n")
+  s.files         = `git ls-files`.split("\n").reject {|f| f =~ /^test/ }
+  s.test_files    = []
   s.require_paths = ["lib"]
 
   s.add_runtime_dependency 'sass', '>= 3.1', '< 3.4'

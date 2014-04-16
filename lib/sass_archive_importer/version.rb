@@ -13,5 +13,5 @@
 # limitations under the License.
 
 module SassArchiveImporter
-  VERSION = "1.0.0.beta.5"
+  VERSION = "1.0.0.beta.6"
 end

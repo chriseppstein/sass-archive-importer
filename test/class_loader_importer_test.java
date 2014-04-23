@@ -58,6 +58,23 @@ class ClassLoaderImporterTest {
       "\n";
     runtime.evalScriptlet(script);
   }
+  public void testClassLoaderImporterModificationTime() {
+    final Ruby runtime = Ruby.newInstance();
+    String script =
+      "# The next three lines make sure no system gems are loaded.\n" +
+      "$:.reject!{|f| !f.start_with?('file:') }\n" +
+      "ENV['GEM_HOME'] = nil\n" +
+      "ENV['GEM_PATH'] = nil\n" +
+      "require 'rubygems'\n" +
+      "require 'sass'\n" +
+      "require 'java'\n" +
+      "require 'org/sass/archive_importer/ClassLoaderImporter'\n" +
+      "class_path_importer = ClassLoaderImporter.new\n" +
+      "entry = class_path_importer.send(:entry_for, 'css_partial')\n" +
+      "fail 'expected an mtime' unless entry.time.to_f > 1\n" +
+      "fail 'expected an mtime in the past' unless entry.time < Time.now\n" ;
+    runtime.evalScriptlet(script);
+  }
 
   public void testClassLoaderImporterNestedContext() {
     final Ruby runtime = Ruby.newInstance();
@@ -190,6 +207,7 @@ class ClassLoaderImporterTest {
     test.testClassLoaderImporterNestedContext();
     test.testClassLoaderImporterMissingImport();
     test.testClassLoaderImporterWithCompass();
+    test.testClassLoaderImporterModificationTime();
     System.out.println("ALL Java Tests Passed");
   }
 }

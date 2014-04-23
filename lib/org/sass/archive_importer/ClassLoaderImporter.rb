@@ -33,7 +33,7 @@ class ClassLoaderImporter < Sass::Importers::Base
     }
   end
 
-  class Entry < Struct.new(:name, :stream)
+  class Entry < Struct.new(:name, :stream, :url)
     def read
       return @result if @result
       reader = java.io.BufferedReader.new(java.io.InputStreamReader.new(stream, "utf8"));
@@ -43,6 +43,10 @@ class ClassLoaderImporter < Sass::Importers::Base
         @result << "\n"
       end
       @result
+    end
+
+    def time
+      Time.at(url.open_connection.get_last_modified / 1000)
     end
   end
 
@@ -88,8 +92,9 @@ class ClassLoaderImporter < Sass::Importers::Base
   def mtime(name, options)
     if entry = entry_for(name)
       entry.time
+    else
+      nil
     end
-    nil
   end
 
   def key(name, options)
@@ -125,7 +130,8 @@ class ClassLoaderImporter < Sass::Importers::Base
   def find_entry(name)
     stream = self.to_java.java_class.getResourceAsStream("/"+name)
     return unless stream
-    Entry.new(name, stream)
+    url = self.to_java.java_class.getResource("/"+name)
+    Entry.new(name, stream, url)
   end
 
   def possible_names(name, base = nil)

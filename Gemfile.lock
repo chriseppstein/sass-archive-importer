@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sass-archive-importer (1.0.0.beta.3)
+    sass-archive-importer (1.0.0.beta.7)
       rubyzip (~> 0.9.9)
       sass (>= 3.1, < 3.4)
 

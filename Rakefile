@@ -150,5 +150,6 @@ task :clean do
   FileUtils.rm_f "test/fixtures/zipped_files.zip"
   FileUtils.rm_f "test/fixtures/class_loader_importer_test.jar"
   FileUtils.rm_rf "test/fixtures/tmpjava"
+  FileUtils.rm_rf "pkg"
 end
 

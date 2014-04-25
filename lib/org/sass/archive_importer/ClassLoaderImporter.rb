@@ -67,7 +67,7 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   def find_relative(name, base, options)
-    base = base.split("<ClassLoaderImporter>#{'/' if sub_folder}#{sub_folder}", 2).last
+    base = normalize_name(base)
     if entry = entry_for(name, base)
       engine(entry, options)
     end
@@ -90,7 +90,8 @@ class ClassLoaderImporter < Sass::Importers::Base
 
 
   def mtime(name, options)
-    if entry = entry_for(name)
+    name = key(name, options).last
+    if entry = find_entry(name)
       entry.time
     else
       nil
@@ -112,6 +113,11 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   protected
+
+  def normalize_name(name)
+    name.split("<ClassLoaderImporter>#{'/' if sub_folder}#{sub_folder}", 2).last
+  end
+
 
   def full_filename(entry)
     "<ClassLoaderImporter>/#{entry.name}"

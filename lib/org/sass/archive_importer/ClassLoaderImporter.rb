@@ -93,7 +93,6 @@ class ClassLoaderImporter < Sass::Importers::Base
 
 
   def mtime(name, options)
-    name = normalize_name(name)
     if entry = find_entry(name)
       entry.time
     else
@@ -125,6 +124,9 @@ class ClassLoaderImporter < Sass::Importers::Base
     name
   end
 
+  def resource_name(name)
+    [nil, *[sub_folder, name].compact].join("/")
+  end
 
   def full_filename(entry)
     "#{to_s}/#{normalize_name(entry.name)}"
@@ -132,7 +134,6 @@ class ClassLoaderImporter < Sass::Importers::Base
 
   def entry_for(name, base = nil)
     possible_names(name, base).each do |n|
-      n = "#{sub_folder}/#{n}" if sub_folder
       if entry = find_entry(n)
         return entry
       end
@@ -141,9 +142,10 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   def find_entry(name)
-    stream = self.to_java.java_class.getResourceAsStream("/"+name)
+    name = resource_name(normalize_name(name))
+    stream = self.to_java.java_class.getResourceAsStream(name)
     return unless stream
-    url = self.to_java.java_class.getResource("/"+name)
+    url = self.to_java.java_class.getResource(name)
     Entry.new(name, stream, url)
   end
 

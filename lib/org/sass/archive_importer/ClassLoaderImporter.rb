@@ -52,6 +52,7 @@ class ClassLoaderImporter < Sass::Importers::Base
 
   def initialize(sub_folder = nil)
     require 'pathname'
+    sub_folder = sub_folder[1..-1] if sub_folder && sub_folder.start_with?("/")
     @sub_folder = sub_folder
   end
 
@@ -67,6 +68,7 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   def find_relative(name, base, options)
+    name = normalize_name(name)
     base = normalize_name(base)
     if entry = entry_for(name, base)
       engine(entry, options)
@@ -75,6 +77,7 @@ class ClassLoaderImporter < Sass::Importers::Base
 
 
   def find(name, options)
+    name = normalize_name(name)
     if entry = entry_for(name)
       engine(entry, options)
     end
@@ -90,7 +93,7 @@ class ClassLoaderImporter < Sass::Importers::Base
 
 
   def mtime(name, options)
-    name = key(name, options).last
+    name = normalize_name(name)
     if entry = find_entry(name)
       entry.time
     else
@@ -99,7 +102,7 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   def key(name, options)
-    name.split("/", 2)
+    [to_s, normalize_name(name)]
   end
 
   java_signature 'boolean isEql(IRubyObject)'
@@ -109,18 +112,22 @@ class ClassLoaderImporter < Sass::Importers::Base
   end
 
   def to_s
-    "<ClassLoaderImporter#{'/' if sub_folder}#{sub_folder}>"
+    @string_representation ||= "<ClassLoaderImporter#{'/' if sub_folder}#{sub_folder}>"
   end
 
   protected
 
   def normalize_name(name)
-    name.split("<ClassLoaderImporter>#{'/' if sub_folder}#{sub_folder}", 2).last
+    return unless name
+    name = name[to_s.length..-1] if name.start_with?(to_s)
+    name = name[1..-1] if name.start_with?("/")
+    name = name[(sub_folder.length + 1)..-1] if sub_folder && name.start_with?("#{sub_folder}/")
+    name
   end
 
 
   def full_filename(entry)
-    "<ClassLoaderImporter>/#{entry.name}"
+    "#{to_s}/#{normalize_name(entry.name)}"
   end
 
   def entry_for(name, base = nil)
